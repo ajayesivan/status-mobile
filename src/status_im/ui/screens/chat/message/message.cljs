@@ -24,8 +24,27 @@
             [status-im.ui.screens.chat.components.reply :as components.reply]
             [status-im.ui.screens.chat.message.link-preview :as link-preview]
             [status-im.ui.screens.communities.icon :as communities.icon]
+            [status-im.ui.components.animation :as animation]
             [status-im.chat.models.pin-message :as models.pin-message])
   (:require-macros [status-im.utils.views :refer [defview letsubs]]))
+
+(defn message-timestamp-anim
+  [anim-opacity show-timestamp?]
+  (animation/start
+   (animation/anim-sequence
+    [(animation/timing
+      anim-opacity
+      {:toValue         1
+       :duration        100
+       :easing          (.-ease ^js animation/easing)
+       :useNativeDriver true})
+     (animation/timing
+      anim-opacity
+      {:toValue         0
+       :delay           2000
+       :duration        100
+       :easing          (.-ease ^js animation/easing)
+       :useNativeDriver true})]) #(reset! show-timestamp? false)))
 
 (defview mention-element [from]
   (letsubs [contact-name [:contacts/contact-name-by-identity from]]
@@ -36,7 +55,9 @@
 (defn message-timestamp
   [{:keys [timestamp-str outgoing outgoing-status edited-at in-popover?] :as message} show-timestamp?]
   (when-not in-popover? ;; We keep track if showing this message in a list in pin-limit-popover
-    [react/view (style/message-timestamp-wrapper message show-timestamp?) 
+    (let [anim-opacity (animation/create-value 0)]
+     [react/animated-view {:style (style/message-timestamp-wrapper message) :opacity anim-opacity} 
+      (when @show-timestamp? (message-timestamp-anim anim-opacity show-timestamp?))
      [react/view {:flex-direction :row}
       [react/text {:style (style/message-timestamp-text)}
        timestamp-str]
@@ -53,7 +74,7 @@
           :accessibility-label (name outgoing-status)}])]
       (when edited-at [react/text {:style (style/message-timestamp-text)}
                        (str edited-at-text)])
-     ]))
+     ])))
 
 (defview quoted-message
   [_ {:keys [from parsed-text image]} outgoing current-public-key public? pinned]
@@ -410,8 +431,7 @@
          (when-not modal
            {:on-press         (fn [_]
                                 (react/dismiss-keyboard!)
-                                (reset! show-timestamp? true)
-                                (js/setTimeout #(reset! show-timestamp? false) 2000))
+                                (reset! show-timestamp? true))
             :delay-long-press 100
             :on-long-press    (fn []
                                 (if @collapsed?
@@ -420,7 +440,7 @@
                                   (on-long-press-fn on-long-press message content)))
             :disabled         in-popover?})
          [react/view (style/message-view-wrapper outgoing)
-          [message-timestamp message @show-timestamp?]
+          [message-timestamp message show-timestamp?]
           [react/view {:style (style/message-view message)}
            [react/view {:style      (style/message-view-content)
                         :max-height max-height}
@@ -484,8 +504,7 @@
                                   {:disabled      in-popover?
                                    :on-press      (fn []
                                                     (react/dismiss-keyboard!)
-                                                    (reset! show-timestamp? true)
-                                                    (js/setTimeout #(reset! show-timestamp? false) 2000))
+                                                    (reset! show-timestamp? true))
                                    :delay-long-press 100
                                    :on-long-press (fn []
                                                     (on-long-press
@@ -499,7 +518,7 @@
                                                       (when message-pin-enabled [{:on-press #(pin-message message)
                                                                                   :label    (if pinned (i18n/label :t/unpin) (i18n/label :t/pin))}]))))})
       [react/view (style/message-view-wrapper outgoing)
-       [message-timestamp message @show-timestamp?]
+       [message-timestamp message show-timestamp?]
        [react/view (style/message-view message)
         [react/view {:style (style/message-view-content)}
          [react/view {:style (style/style-message-text outgoing)}
@@ -561,10 +580,9 @@
                                  :on-long-press
                                  (fn [] (on-long-press []))
                                  :on-press (fn []
-                                             (reset! show-timestamp? true)
-                                             (js/setTimeout #(reset! show-timestamp? false) 2000))})
+                                             (reset! show-timestamp? true))})
     [react/view (style/message-view-wrapper (:outgoing message))
-     [message-timestamp message @show-timestamp?]
+     [message-timestamp message show-timestamp?]
      [react/view {:style (style/message-view message) :accessibility-label :audio-message}
       [react/view {:style (style/message-view-content)}
        [message.audio/message-content message]]]]]

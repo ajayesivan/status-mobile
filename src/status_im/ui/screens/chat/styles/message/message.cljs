@@ -29,7 +29,7 @@
 (def message-timestamp
   {:font-size  10})
 
-(defn message-timestamp-wrapper [{:keys [last-in-group? outgoing group-chat]} show-timestamp?]
+(defn message-timestamp-wrapper [{:keys [last-in-group? outgoing group-chat]}]
   {
    :justify-content :center
    (if outgoing :margin-right :margin-left) 12
@@ -38,7 +38,8 @@
                             (not group-chat)))
                  16
                  0)
-   :opacity (if show-timestamp? 1 0)})
+   :opacity 0
+  })
 
 (defn message-timestamp-text []
   (merge message-timestamp
