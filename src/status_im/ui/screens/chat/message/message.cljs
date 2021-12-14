@@ -34,9 +34,9 @@
 (def edited-at-text (str " ⌫ " (i18n/label :t/edited)))
 
 (defn message-timestamp
-  [{:keys [timestamp-str outgoing outgoing-status edited-at in-popover?] :as message}]
+  [{:keys [timestamp-str outgoing outgoing-status edited-at in-popover?] :as message} show-timestamp?]
   (when-not in-popover? ;; We keep track if showing this message in a list in pin-limit-popover
-    [react/view (style/message-timestamp-wrapper message) 
+    [react/view (style/message-timestamp-wrapper message show-timestamp?) 
      [react/text {:style (style/message-timestamp-text)}
       (str
        timestamp-str
@@ -421,7 +421,7 @@
                                   (on-long-press-fn on-long-press message content)))
             :disabled         in-popover?})
          [react/view (style/message-view-wrapper outgoing)
-          (when @show-timestamp? [message-timestamp message])
+          [message-timestamp message @show-timestamp?]
           [react/view {:style (style/message-view message)}
            [react/view {:style      (style/message-view-content)
                         :max-height max-height}
@@ -500,7 +500,7 @@
                                                       (when message-pin-enabled [{:on-press #(pin-message message)
                                                                                   :label    (if pinned (i18n/label :t/unpin) (i18n/label :t/pin))}]))))})
       [react/view (style/message-view-wrapper outgoing)
-       (when @show-timestamp? [message-timestamp message])
+       [message-timestamp message @show-timestamp?]
        [react/view (style/message-view message)
         [react/view {:style (style/message-view-content)}
          [react/view {:style (style/style-message-text outgoing)}
@@ -565,7 +565,7 @@
                                              (reset! show-timestamp? true)
                                              (js/setTimeout #(reset! show-timestamp? false) 2000))})
     [react/view (style/message-view-wrapper (:outgoing message))
-     (when @show-timestamp? [message-timestamp message])
+     [message-timestamp message @show-timestamp?]
      [react/view {:style (style/message-view message) :accessibility-label :audio-message}
       [react/view {:style (style/message-view-content)}
        [message.audio/message-content message]]]]]

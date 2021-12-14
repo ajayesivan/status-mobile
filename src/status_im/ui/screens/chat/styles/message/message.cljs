@@ -29,7 +29,7 @@
 (def message-timestamp
   {:font-size  10})
 
-(defn message-timestamp-wrapper [{:keys [last-in-group? outgoing group-chat]}]
+(defn message-timestamp-wrapper [{:keys [last-in-group? outgoing group-chat]} show-timestamp?]
   {
    :flex-direction :row
    :align-items :center
@@ -39,6 +39,7 @@
                             (not group-chat)))
                  16
                  0)
+   :opacity (if show-timestamp? 1 0)
   })
 
 (defn message-timestamp-text []
@@ -186,8 +187,8 @@
 
 (defn message-view-wrapper [outgoing]
   {
+   :align-self :center
    :flex-direction (if outgoing :row :row-reverse)
-   :align-items :center
   })
 
 (defn message-view
