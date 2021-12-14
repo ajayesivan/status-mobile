@@ -34,32 +34,25 @@
 (def edited-at-text (str " ⌫ " (i18n/label :t/edited)))
 
 (defn message-timestamp
-  ([message]
-   [message-timestamp message false])
-  ([{:keys [timestamp-str outgoing content outgoing-status pinned edited-at in-popover?]} justify-timestamp?]
-   (when-not in-popover? ;; We keep track if showing this message in a list in pin-limit-popover
-     [react/view (when justify-timestamp?
-                   {:align-self                       :flex-end
-                    :position                         :absolute
-                    :bottom                           9 ; 6 Bubble bottom, 3 message baseline
-                    (if (:rtl? content) :left :right) 0
-                    :flex-direction                   :row
-                    :align-items                      :flex-end})
-      (when (and outgoing justify-timestamp?)
-        [icons/icon (case outgoing-status
-                      :sending   :tiny-icons/tiny-pending
-                      :sent      :tiny-icons/tiny-sent
-                      :not-sent  :tiny-icons/tiny-warning
-                      :delivered :tiny-icons/tiny-delivered
-                      :tiny-icons/tiny-pending)
-         {:width               16
-          :height              12
-          :color               (if pinned colors/gray colors/white)
-          :accessibility-label (name outgoing-status)}])
-      [react/text {:style (style/message-timestamp-text (and outgoing (not pinned)))}
-       (str
-        timestamp-str
-        (when edited-at edited-at-text))]])))
+  [{:keys [timestamp-str outgoing outgoing-status edited-at in-popover?] :as message}]
+  (when-not in-popover? ;; We keep track if showing this message in a list in pin-limit-popover
+    [react/view (style/message-timestamp-wrapper message) 
+     [react/text {:style (style/message-timestamp-text)}
+      (str
+       timestamp-str
+       (when edited-at edited-at-text))]
+     (when (and outgoing outgoing-status)
+       [icons/icon (case outgoing-status
+                     :sending   :tiny-icons/tiny-pending
+                     :sent      :tiny-icons/tiny-sent
+                     :not-sent  :tiny-icons/tiny-warning
+                     :delivered :tiny-icons/tiny-delivered
+                     :tiny-icons/tiny-pending)
+        {:width               16
+         :height              12
+         :color               colors/gray
+         :accessibility-label (name outgoing-status)}])
+     ]))
 
 (defview quoted-message
   [_ {:keys [from parsed-text image]} outgoing current-public-key public? pinned]
@@ -407,7 +400,8 @@
 
 (defn collapsible-text-message [{:keys [mentioned]} _]
   (let [collapsed?   (reagent/atom false)
-        collapsible? (reagent/atom false)]
+        collapsible? (reagent/atom false)
+        show-timestamp? (reagent/atom false)]
     (fn [{:keys [content outgoing current-public-key public? pinned in-popover?] :as message} on-long-press modal]
       (let [max-height (when-not (or outgoing modal)
                          (if @collapsible?
@@ -416,7 +410,9 @@
         [react/touchable-highlight
          (when-not modal
            {:on-press         (fn [_]
-                                (react/dismiss-keyboard!))
+                                (react/dismiss-keyboard!)
+                                (reset! show-timestamp? true)
+                                (js/setTimeout #(reset! show-timestamp? false) 2000))
             :delay-long-press 100
             :on-long-press    (fn []
                                 (if @collapsed?
@@ -424,38 +420,40 @@
                                       (js/setTimeout #(on-long-press-fn on-long-press message content) 200))
                                   (on-long-press-fn on-long-press message content)))
             :disabled         in-popover?})
-         [react/view {:style (style/message-view message)}
-          [react/view {:style      (style/message-view-content)
-                       :max-height max-height}
-           (let [response-to (:response-to content)]
-             [react/view {:on-layout
-                          #(when (and (> (.-nativeEvent.layout.height ^js %) max-message-height-px)
-                                      (not @collapsible?)
-                                      (not outgoing)
-                                      (not modal))
-                             (reset! collapsed? true)
-                             (reset! collapsible? true))}
-              (when (and (seq response-to) (:quoted-message message))
-                [quoted-message response-to (:quoted-message message) outgoing current-public-key public? pinned])
-              [render-parsed-text-without-timestamp message (:parsed-text content)]])
-           (when (and @collapsible? (not modal))
-             (if @collapsed?
-               (let [color (if pinned colors/pin-background (if mentioned colors/mentioned-background colors/blue-light))]
-                 [react/touchable-highlight
-                  {:on-press #(swap! collapsed? not)
-                   :style    {:position :absolute :bottom 0 :left 0 :right 0 :height 72}}
-                  [react/linear-gradient {:colors [(str color "00") color]
-                                          :start  {:x 0 :y 0} :end {:x 0 :y 0.9}}
-                   [react/view {:height         72 :align-self :center :justify-content :flex-end
-                                :padding-bottom 10}
-                    [react/view (style/collapse-button)
-                     [icons/icon :main-icons/dropdown
-                      {:color colors/white}]]]]])
-               [react/touchable-highlight {:on-press #(swap! collapsed? not)
-                                           :style    {:align-self :center :margin 5}}
-                [react/view (style/collapse-button)
-                 [icons/icon :main-icons/dropdown-up
-                  {:color colors/white}]]]))]]]))))
+         [react/view (style/message-view-wrapper outgoing)
+          (when @show-timestamp? [message-timestamp message])
+          [react/view {:style (style/message-view message)}
+           [react/view {:style      (style/message-view-content)
+                        :max-height max-height}
+            (let [response-to (:response-to content)]
+              [react/view {:on-layout
+                           #(when (and (> (.-nativeEvent.layout.height ^js %) max-message-height-px)
+                                       (not @collapsible?)
+                                       (not outgoing)
+                                       (not modal))
+                              (reset! collapsed? true)
+                              (reset! collapsible? true))}
+               (when (and (seq response-to) (:quoted-message message))
+                 [quoted-message response-to (:quoted-message message) outgoing current-public-key public? pinned])
+               [render-parsed-text-without-timestamp message (:parsed-text content)]])
+            (when (and @collapsible? (not modal))
+              (if @collapsed?
+                (let [color (if pinned colors/pin-background (if mentioned colors/mentioned-background colors/blue-light))]
+                  [react/touchable-highlight
+                   {:on-press #(swap! collapsed? not)
+                    :style    {:position :absolute :bottom 0 :left 0 :right 0 :height 72}}
+                   [react/linear-gradient {:colors [(str color "00") color]
+                                           :start  {:x 0 :y 0} :end {:x 0 :y 0.9}}
+                    [react/view {:height         72 :align-self :center :justify-content :flex-end
+                                 :padding-bottom 10}
+                     [react/view (style/collapse-button)
+                      [icons/icon :main-icons/dropdown
+                       {:color colors/white}]]]]])
+                [react/touchable-highlight {:on-press #(swap! collapsed? not)
+                                            :style    {:align-self :center :margin 5}}
+                 [react/view (style/collapse-button)
+                  [icons/icon :main-icons/dropdown-up
+                   {:color colors/white}]]]))]]]]))))
 
 (defmethod ->message constants/content-type-text
   [message {:keys [on-long-press modal] :as reaction-picker}]
@@ -480,12 +478,15 @@
 (defmethod ->message constants/content-type-emoji
   [{:keys [content current-public-key outgoing public? pinned in-popover? message-pin-enabled] :as message} {:keys [on-long-press modal]
                                                                                                              :as   reaction-picker}]
-  (let [response-to (:response-to content)]
-    [message-content-wrapper message
+  (let [response-to (:response-to content)
+        show-timestamp? (reagent/atom false)]
+    (fn[] [message-content-wrapper message
      [react/touchable-highlight (when-not modal
                                   {:disabled      in-popover?
                                    :on-press      (fn []
-                                                    (react/dismiss-keyboard!))
+                                                    (react/dismiss-keyboard!)
+                                                    (reset! show-timestamp? true)
+                                                    (js/setTimeout #(reset! show-timestamp? false) 2000))
                                    :delay-long-press 100
                                    :on-long-press (fn []
                                                     (on-long-press
@@ -498,14 +499,17 @@
                                                         :label    (i18n/label :t/sharing-copy-to-clipboard)}]
                                                       (when message-pin-enabled [{:on-press #(pin-message message)
                                                                                   :label    (if pinned (i18n/label :t/unpin) (i18n/label :t/pin))}]))))})
-      [react/view (style/message-view message)
-       [react/view {:style (style/message-view-content)}
-        [react/view {:style (style/style-message-text outgoing)}
-         (when (and (seq response-to) (:quoted-message message))
-           [quoted-message response-to (:quoted-message message) outgoing current-public-key public? pinned])
-         [react/text {:style (style/emoji-message message)}
-          (:text content)]]]]]
-     reaction-picker]))
+      [react/view (style/message-view-wrapper outgoing)
+       (when @show-timestamp? [message-timestamp message])
+       [react/view (style/message-view message)
+        [react/view {:style (style/message-view-content)}
+         [react/view {:style (style/style-message-text outgoing)}
+          (when (and (seq response-to) (:quoted-message message))
+            [quoted-message response-to (:quoted-message message) outgoing current-public-key public? pinned])
+          [react/text {:style (style/emoji-message message)}
+           (:text content)]]]]
+       ]]
+     reaction-picker])))
 
 (defmethod ->message constants/content-type-sticker
   [{:keys [content from outgoing in-popover?]
@@ -551,14 +555,21 @@
 
 (defmethod ->message constants/content-type-audio [message {:keys [on-long-press modal]
                                                             :as   reaction-picker}]
-  [message-content-wrapper message
+  (let [show-timestamp? (reagent/atom false)]
+  (fn[] [message-content-wrapper message
    [react/touchable-highlight (when-not modal
-                                {:on-long-press
-                                 (fn [] (on-long-press []))})
-    [react/view {:style (style/message-view message) :accessibility-label :audio-message}
-     [react/view {:style (style/message-view-content)}
-      [message.audio/message-content message]]]]
-   reaction-picker])
+                                {
+                                 :on-long-press
+                                 (fn [] (on-long-press []))
+                                 :on-press (fn []
+                                             (reset! show-timestamp? true)
+                                             (js/setTimeout #(reset! show-timestamp? false) 2000))})
+    [react/view (style/message-view-wrapper (:outgoing message))
+     (when @show-timestamp? [message-timestamp message])
+     [react/view {:style (style/message-view message) :accessibility-label :audio-message}
+      [react/view {:style (style/message-view-content)}
+       [message.audio/message-content message]]]]]
+   reaction-picker])))
 
 (defmethod ->message :default [message]
   [message-content-wrapper message

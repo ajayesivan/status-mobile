@@ -29,7 +29,25 @@
 (def message-timestamp
   {:font-size  10})
 
-(defn message-timestamp-text
+(defn message-timestamp-wrapper [{:keys [last-in-group? outgoing group-chat]}]
+  {
+   :flex-direction :row
+   :align-items :center
+   :margin-horizontal 12
+   :margin-top (if (and last-in-group?
+                        (or outgoing
+                            (not group-chat)))
+                 16
+                 0)
+  })
+
+(defn message-timestamp-text []
+  (merge message-timestamp
+        {
+         :color       colors/gray
+        }))
+
+(defn audio-message-timestamp-text
   [outgoing]
   (merge message-timestamp
          {:line-height 10
@@ -165,6 +183,12 @@
    :shadow-radius  16
    :shadow-color   (:shadow-01 @colors/theme)
    :shadow-offset  {:width 0 :height 4}})
+
+(defn message-view-wrapper [outgoing]
+  {
+   :flex-direction (if outgoing :row :row-reverse)
+   :align-items :center
+  })
 
 (defn message-view
   [{:keys [content-type outgoing group-chat last-in-group? mentioned pinned]}]
