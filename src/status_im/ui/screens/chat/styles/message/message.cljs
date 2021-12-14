@@ -31,22 +31,21 @@
 
 (defn message-timestamp-wrapper [{:keys [last-in-group? outgoing group-chat]} show-timestamp?]
   {
-   :flex-direction :row
-   :align-items :center
-   :margin-horizontal 12
+   :justify-content :center
+   (if outgoing :margin-right :margin-left) 12
    :margin-top (if (and last-in-group?
                         (or outgoing
                             (not group-chat)))
                  16
                  0)
-   :opacity (if show-timestamp? 1 0)
-  })
+   :opacity (if show-timestamp? 1 0)})
 
 (defn message-timestamp-text []
   (merge message-timestamp
-        {
-         :color       colors/gray
-        }))
+         {
+          :color       colors/gray
+          :text-align :center
+          }))
 
 (defn audio-message-timestamp-text
   [outgoing]
@@ -58,8 +57,8 @@
 
 (defn message-wrapper [{:keys [outgoing in-popover?]}]
   (if (and outgoing (not in-popover?))
-    {:margin-left 96}
-    {:margin-right 52}))
+    {:margin-left 96} ;; TODO/Ajay: Change the margin to '8' and try to improve the UI
+    {:margin-right 96}))
 
 (defn message-author-wrapper
   [outgoing display-photo? in-popover?]
@@ -187,9 +186,8 @@
 
 (defn message-view-wrapper [outgoing]
   {
-   :align-self :center
-   :flex-direction (if outgoing :row :row-reverse)
-  })
+   :align-self :flex-end
+   :flex-direction (if outgoing :row :row-reverse)})
 
 (defn message-view
   [{:keys [content-type outgoing group-chat last-in-group? mentioned pinned]}]

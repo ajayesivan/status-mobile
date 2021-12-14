@@ -31,27 +31,28 @@
   (letsubs [contact-name [:contacts/contact-name-by-identity from]]
     contact-name))
 
-(def edited-at-text (str " ⌫ " (i18n/label :t/edited)))
+(def edited-at-text (str "(" (i18n/label :t/edited) ")"))
 
 (defn message-timestamp
   [{:keys [timestamp-str outgoing outgoing-status edited-at in-popover?] :as message} show-timestamp?]
   (when-not in-popover? ;; We keep track if showing this message in a list in pin-limit-popover
     [react/view (style/message-timestamp-wrapper message show-timestamp?) 
-     [react/text {:style (style/message-timestamp-text)}
-      (str
-       timestamp-str
-       (when edited-at edited-at-text))]
-     (when (and outgoing outgoing-status)
-       [icons/icon (case outgoing-status
-                     :sending   :tiny-icons/tiny-pending
-                     :sent      :tiny-icons/tiny-sent
-                     :not-sent  :tiny-icons/tiny-warning
-                     :delivered :tiny-icons/tiny-delivered
-                     :tiny-icons/tiny-pending)
-        {:width               16
-         :height              12
-         :color               colors/gray
-         :accessibility-label (name outgoing-status)}])
+     [react/view {:flex-direction :row}
+      [react/text {:style (style/message-timestamp-text)}
+       timestamp-str]
+      (when (and outgoing outgoing-status)
+        [icons/icon (case outgoing-status
+                      :sending   :tiny-icons/tiny-pending
+                      :sent      :tiny-icons/tiny-sent
+                      :not-sent  :tiny-icons/tiny-warning
+                      :delivered :tiny-icons/tiny-delivered
+                      :tiny-icons/tiny-pending)
+         {:width               16
+          :height              12
+          :color               colors/gray
+          :accessibility-label (name outgoing-status)}])]
+      (when edited-at [react/text {:style (style/message-timestamp-text)}
+                       (str edited-at-text)])
      ]))
 
 (defview quoted-message
@@ -168,9 +169,7 @@
     ;; It's worth considering pure js structures for this code path as
     ;; it's perfomance critical
     (if (= react/text-class (nth last-element 0))
-      ;; Append timestamp to last text
       (conj (pop elements) last-element)
-      ;; Append timestamp to new block
       elements)))
 
 (defn unknown-content-type
