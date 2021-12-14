@@ -168,19 +168,17 @@
 (defn render-parsed-text [message tree]
   (reduce (fn [acc e] (render-block message acc e)) [:<>] tree))
 
-(defn render-parsed-text-with-timestamp [{:keys [timestamp-str outgoing edited-at in-popover?] :as message} tree]
+(defn render-parsed-text-without-timestamp [message tree]
   (let [elements (render-parsed-text message tree)
-        timestamp [react/text {:style (style/message-timestamp-placeholder)}
-                   (str (if (and outgoing (not in-popover?)) "        " "  ") (when-not in-popover? (str timestamp-str (when edited-at edited-at-text))))]
         last-element (peek elements)]
     ;; Using `nth` here as slightly faster than `first`, roughly 30%
     ;; It's worth considering pure js structures for this code path as
     ;; it's perfomance critical
     (if (= react/text-class (nth last-element 0))
       ;; Append timestamp to last text
-      (conj (pop elements) (conj last-element timestamp))
+      (conj (pop elements) last-element)
       ;; Append timestamp to new block
-      (conj elements timestamp))))
+      elements)))
 
 (defn unknown-content-type
   [{:keys [outgoing content-type content] :as message}]
@@ -439,9 +437,7 @@
                              (reset! collapsible? true))}
               (when (and (seq response-to) (:quoted-message message))
                 [quoted-message response-to (:quoted-message message) outgoing current-public-key public? pinned])
-              [render-parsed-text-with-timestamp message (:parsed-text content)]])
-           (when-not @collapsed?
-             [message-timestamp message true])
+              [render-parsed-text-without-timestamp message (:parsed-text content)]])
            (when (and @collapsible? (not modal))
              (if @collapsed?
                (let [color (if pinned colors/pin-background (if mentioned colors/mentioned-background colors/blue-light))]
@@ -508,8 +504,7 @@
          (when (and (seq response-to) (:quoted-message message))
            [quoted-message response-to (:quoted-message message) outgoing current-public-key public? pinned])
          [react/text {:style (style/emoji-message message)}
-          (:text content)]]
-        [message-timestamp message]]]]
+          (:text content)]]]]]
      reaction-picker]))
 
 (defmethod ->message constants/content-type-sticker
@@ -562,7 +557,7 @@
                                  (fn [] (on-long-press []))})
     [react/view {:style (style/message-view message) :accessibility-label :audio-message}
      [react/view {:style (style/message-view-content)}
-      [message.audio/message-content message [message-timestamp message false]]]]]
+      [message.audio/message-content message]]]]
    reaction-picker])
 
 (defmethod ->message :default [message]

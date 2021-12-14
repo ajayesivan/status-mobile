@@ -29,10 +29,6 @@
 (def message-timestamp
   {:font-size  10})
 
-(defn message-timestamp-placeholder
-  []
-  (merge message-timestamp {:opacity 0 :color "rgba(0,0,0,0)"}))
-
 (defn message-timestamp-text
   [outgoing]
   (merge message-timestamp
@@ -159,7 +155,6 @@
   [{:keys [incoming-group]}]
   {:font-size    28
    :line-height  34                     ;TODO: Smaller crops the icon on the top
-   :margin-right 12
    :margin-top   (if incoming-group 4 0)})
 
 (defn collapse-button []
