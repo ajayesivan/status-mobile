@@ -58,7 +58,7 @@
 
 (defn message-wrapper [{:keys [outgoing in-popover?]}]
   (if (and outgoing (not in-popover?))
-    {:margin-left 96} ;; TODO/Ajay: Change the margin to '8' and try to improve the UI
+    {:margin-left 96}
     {:margin-right 96}))
 
 (defn message-author-wrapper
