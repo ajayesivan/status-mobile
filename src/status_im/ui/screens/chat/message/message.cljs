@@ -58,7 +58,7 @@
     (let [anim-opacity (animation/create-value 0)]
      [react/animated-view {:style (style/message-timestamp-wrapper message) :opacity anim-opacity} 
       (when @show-timestamp? (message-timestamp-anim anim-opacity show-timestamp?))
-     [react/view {:flex-direction :row}
+     [react/view {:flex-direction :row :align-items :center}
       [react/text {:style (style/message-timestamp-text)}
        timestamp-str]
       (when (and outgoing outgoing-status)
