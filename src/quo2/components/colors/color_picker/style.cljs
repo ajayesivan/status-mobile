@@ -29,4 +29,14 @@
    :background-color color
    :justify-content :center
    :align-items :center
+   :border-color color
+   :border-width 2
+   :overflow :hidden
    :border-radius 20})
+
+(defn secondary-overlay [secondary-color]
+  {:width 18
+   :height 40
+   :position :absolute
+   :right 0
+   :background-color secondary-color})

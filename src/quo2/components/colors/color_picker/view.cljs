@@ -15,18 +15,21 @@
                     {:name "copper" :color "#CB6256" :key 9}
                     {:name "camel" :color "#C78F67" :key 10}
                     {:name "orange" :color "#FF7D46" :key 11}
-                    {:name "fengshui" :color "#09101C" :key 12}])
+                    {:name "fengshui" :color "#09101C" :secondary-color "#FFFFFF" :key 12}])
 
-(defn color-item [color selected?]
+(defn color-item [{:keys [color secondary-color selected?]}]
   [rn/touchable-opacity {:style (style/color-button color selected?) :on-press #(print "Clicked me!!")}
    [rn/view {:style (style/color-circle color)}
+    (when (and :secondary-color (not selected?)) [rn/view {:style (style/secondary-overlay secondary-color)}])
     (when selected? [icon/icon :i/check
-                     {:size 20 :color colors/white}])]])
+                     {:size 20 :color (or secondary-color colors/white)}])]])
 
 (defn color-picker-row [color-list]
   [rn/view {:style style/color-picker-row}
    (for [color color-list]
-     [color-item (get color :color) (= (get color :key) 2)])])
+     [color-item {:color (get color :color)
+                  :selected? (= (get color :key) 3)
+                  :secondary-color (get color :secondary-color)}])])
 
 (defn view []
   [rn/view {:style style/color-picker-container}
