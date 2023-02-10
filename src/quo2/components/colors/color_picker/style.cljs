@@ -10,19 +10,23 @@
   {:flex-direction :row
    :justify-content :space-between})
 
-(defn color-button []
-  {:width 48
-   :height 48
-   :border-width 4
-   :border-radius 24
-   :transform [{:rotate "45deg"}]
-   :border-top-color (colors/alpha "#2A4AF5" 0.2)
-   :border-right-color (colors/alpha "#2A4AF5" 0.2)
-   :border-bottom-color (colors/alpha "#2A4AF5" 0.4)
-   :border-left-color (colors/alpha "#2A4AF5" 0.4)})
+(defn color-button [color selected?]
+  (merge {:width 48
+          :height 48
+          :border-width 4
+          :border-radius 24
+          :transform [{:rotate "45deg"}]
+          :border-color :transparent}
+         (when selected? {:border-top-color (colors/alpha color 0.2)
+                          :border-right-color (colors/alpha color 0.2)
+                          :border-bottom-color (colors/alpha color 0.4)
+                          :border-left-color (colors/alpha color 0.4)})))
 
-(defn color-circle []
+(defn color-circle [color]
   {:width 40
    :height 40
-   :background-color "#2A4AF5"
+   :transform [{:rotate "-45deg"}]
+   :background-color color
+   :justify-content :center
+   :align-items :center
    :border-radius 20})
