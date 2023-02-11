@@ -2,6 +2,7 @@
   (:require [react-native.core :as rn]
             [quo2.foundations.colors :as colors]
             [quo2.components.icon :as icon]
+            [reagent.core :as reagent]
             [quo2.components.colors.color-picker.style :as style]))
 
 (def picker-colors [{:name "blue"
@@ -44,10 +45,10 @@
                      :secondary-color-dark "#09101C"}])
 
 (defn color-item
-  [{:keys [color color-dark secondary-color secondary-color-dark selected?]}]
+  [{:keys [name color color-dark secondary-color secondary-color-dark selected? on-change]}]
   [rn/touchable-opacity
    {:style (style/color-button (colors/theme-colors color color-dark) selected?)
-    :on-press #(print "Clicked me!!")}
+    :on-press #(on-change name)}
    [rn/view {:style (style/color-circle (colors/theme-colors color color-dark))}
     (when (and :secondary-color (not selected?))
       [rn/view
@@ -59,12 +60,18 @@
         :color (or (colors/theme-colors secondary-color secondary-color-dark)
                    colors/white)}])]])
 
-(defn color-picker-row [color-list]
+(defn color-picker-row [color-list selected]
+  (print @selected) ;; If I remove print statement from here the on-change logic will stop working. Don't know why!!!
   [rn/view {:style style/color-picker-row}
    (for [color color-list]
-     [color-item (merge color {:selected? (= (get color :name) "purple") :key (get color :name)})])])
+     [color-item (merge color
+                        {:selected? (= (get color :name) @selected)
+                         :key (get color :name)
+                         :on-change #(reset! selected %)})])])
 
-(defn view []
-  [rn/view {:style style/color-picker-container}
-   [color-picker-row (subvec picker-colors 0 6)]
-   [color-picker-row (subvec picker-colors 6 12)]])
+(defn view [{:keys [default-selected-color]}]
+  (let [internal-selected (reagent/atom (or default-selected-color "camel"))]
+    (fn []
+      [rn/view {:style style/color-picker-container}
+       [color-picker-row (subvec picker-colors 0 6) internal-selected]
+       [color-picker-row (subvec picker-colors 6 12) internal-selected]])))
