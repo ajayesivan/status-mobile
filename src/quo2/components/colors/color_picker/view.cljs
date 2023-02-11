@@ -4,32 +4,65 @@
             [quo2.components.icon :as icon]
             [quo2.components.colors.color-picker.style :as style]))
 
-(def picker-colors [{:name "blue" :color "#2A4AF5" :key 1}
-                    {:name "purple" :color "#7140FD" :key 2}
-                    {:name "army" :color "#216266" :key 3}
-                    {:name "turquoise" :color "#2A799B" :key 4}
-                    {:name "sky" :color "#1992D7" :key 5}
-                    {:name "magenta" :color "#EC266C" :key 6}
-                    {:name "yellow" :color "#F6B03C" :key 7}
-                    {:name "flamingo" :color "#F66F8F" :key 8}
-                    {:name "copper" :color "#CB6256" :key 9}
-                    {:name "camel" :color "#C78F67" :key 10}
-                    {:name "orange" :color "#FF7D46" :key 11}
-                    {:name "fengshui" :color "#09101C" :secondary-color "#FFFFFF" :key 12}])
+(def picker-colors [{:name "blue"
+                     :color "#2A4AF5"
+                     :color-dark "#223BC4"}
+                    {:name "purple"
+                     :color "#7140FD"
+                     :color-dark "#5A33CA"}
+                    {:name "army"
+                     :color "#216266"
+                     :color-dark "#1A4E52"}
+                    {:name "turquoise"
+                     :color "#2A799B"
+                     :color-dark "#22617C"}
+                    {:name "sky"
+                     :color "#1992D7"
+                     :color-dark "#1475AC"}
+                    {:name "magenta"
+                     :color "#EC266C"
+                     :color-dark "#BD1E56"}
+                    {:name "yellow"
+                     :color "#F6B03C"
+                     :color-dark "#C58D30"}
+                    {:name "flamingo"
+                     :color "#F66F8F"
+                     :color-dark "#C55972"}
+                    {:name "copper"
+                     :color "#CB6256"
+                     :color-dark "#A24E45"}
+                    {:name "camel"
+                     :color "#C78F67"
+                     :color-dark "#9F7252"}
+                    {:name "orange"
+                     :color "#FF7D46"
+                     :color-dark "#CC6438"}
+                    {:name "fengshui"
+                     :color "#09101C"
+                     :color-dark "#FFFFFF"
+                     :secondary-color "#FFFFFF"
+                     :secondary-color-dark "#09101C"}])
 
-(defn color-item [{:keys [color secondary-color selected?]}]
-  [rn/touchable-opacity {:style (style/color-button color selected?) :on-press #(print "Clicked me!!")}
-   [rn/view {:style (style/color-circle color)}
-    (when (and :secondary-color (not selected?)) [rn/view {:style (style/secondary-overlay secondary-color)}])
-    (when selected? [icon/icon :i/check
-                     {:size 20 :color (or secondary-color colors/white)}])]])
+(defn color-item
+  [{:keys [color color-dark secondary-color secondary-color-dark selected?]}]
+  [rn/touchable-opacity
+   {:style (style/color-button (colors/theme-colors color color-dark) selected?)
+    :on-press #(print "Clicked me!!")}
+   [rn/view {:style (style/color-circle (colors/theme-colors color color-dark))}
+    (when (and :secondary-color (not selected?))
+      [rn/view
+       {:style (style/secondary-overlay
+                (colors/theme-colors secondary-color secondary-color-dark))}])
+    (when selected?
+      [icon/icon :i/check
+       {:size 20
+        :color (or (colors/theme-colors secondary-color secondary-color-dark)
+                   colors/white)}])]])
 
 (defn color-picker-row [color-list]
   [rn/view {:style style/color-picker-row}
    (for [color color-list]
-     [color-item {:color (get color :color)
-                  :selected? (= (get color :key) 3)
-                  :secondary-color (get color :secondary-color)}])])
+     [color-item (merge color {:selected? (= (get color :name) "purple") :key (get color :name)})])])
 
 (defn view []
   [rn/view {:style style/color-picker-container}
