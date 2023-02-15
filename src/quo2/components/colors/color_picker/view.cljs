@@ -61,17 +61,16 @@
                    colors/white)}])]])
 
 (defn color-picker-row [color-list selected]
-  (print @selected) ;; If I remove print statement from here the on-change logic will stop working. Don't know why!!!
-  [rn/view {:style style/color-picker-row}
-   (for [color color-list]
-     [color-item (merge color
-                        {:selected? (= (get color :name) @selected)
-                         :key (get color :name)
-                         :on-change #(reset! selected %)})])])
+  [rn/view
+   {:style style/color-picker-row}
+   (doall (for [color color-list]
+            [color-item (merge color
+                               {:selected? (= (get color :name) @selected)
+                                :key (get color :name)
+                                :on-change #(reset! selected %)})]))])
 
 (defn view [{:keys [default-selected-color]}]
   (let [internal-selected (reagent/atom (or default-selected-color "camel"))]
-    (fn []
-      [rn/view {:style style/color-picker-container}
-       [color-picker-row (subvec picker-colors 0 6) internal-selected]
-       [color-picker-row (subvec picker-colors 6 12) internal-selected]])))
+    [rn/view {:style style/color-picker-container}
+     [color-picker-row (subvec picker-colors 0 6) internal-selected]
+     [color-picker-row (subvec picker-colors 6 12) internal-selected]]))
