@@ -3,12 +3,13 @@
 
 (def color-picker-container
   {:max-width 338
-   :height 106
+   :flex-direction :row
+   :flex-wrap :wrap
    :justify-content :space-between})
 
-(def color-picker-row
-  {:flex-direction :row
-   :justify-content :space-between})
+(def flex-break
+  {:flex-basis "100%"
+   :height 10})
 
 (defn color-button [color selected?]
   (merge {:width 48

@@ -60,17 +60,17 @@
         :color (or (colors/theme-colors secondary-color secondary-color-dark)
                    colors/white)}])]])
 
-(defn color-picker-row [color-list selected]
-  [rn/view
-   {:style style/color-picker-row}
-   (doall (for [color color-list]
-            [color-item (merge color
-                               {:selected? (= (get color :name) @selected)
-                                :key (get color :name)
-                                :on-change #(reset! selected %)})]))])
+(defn flex-break []
+  [rn/view {:style style/flex-break}])
 
 (defn view [{:keys [default-selected-color]}]
-  (let [internal-selected (reagent/atom (or default-selected-color "camel"))]
-    [rn/view {:style style/color-picker-container}
-     [color-picker-row (subvec picker-colors 0 6) internal-selected]
-     [color-picker-row (subvec picker-colors 6 12) internal-selected]]))
+  (let [internal-selected (reagent/atom default-selected-color)]
+    (fn []
+      [rn/view {:style style/color-picker-container}
+       (doall (map-indexed (fn [index color]
+                             [:<> {:key (get color :name)}
+                              [color-item (merge color
+                                                 {:selected? (= (get color :name) @internal-selected)
+                                                  :on-change #(reset! internal-selected %)})]
+                              (when (= index 5) [flex-break])])
+                           picker-colors))])))
