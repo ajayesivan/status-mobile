@@ -26,7 +26,7 @@
             :border-left-color   (colors/alpha color 0.4)})))
 
 (defn color-circle
-  [color]
+  [color blur?]
   {:width            40
    :height           40
    :transform        [{:rotate "-45deg"}]
@@ -34,13 +34,13 @@
    :justify-content  :center
    :align-items      :center
    :border-color     color
-   :border-width     2
+   :border-width     (if blur? 0 2)
    :overflow         :hidden
    :border-radius    20})
 
 (defn secondary-overlay
-  [secondary-color]
-  {:width            18
+  [secondary-color blur?]
+  {:width            (if blur? 20 18)
    :height           40
    :position         :absolute
    :right            0

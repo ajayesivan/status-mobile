@@ -68,10 +68,10 @@
     [rn/touchable-opacity
      {:style    (style/color-button theme-color selected?)
       :on-press #(on-press name)}
-     [rn/view {:style (style/color-circle theme-color)}
+     [rn/view {:style (style/color-circle theme-color blur?)}
       (when (and :secondary-color (not selected?))
         [rn/view
-         {:style (style/secondary-overlay theme-secondary)}])
+         {:style (style/secondary-overlay theme-secondary blur?)}])
       (when selected?
         [icon/icon :i/check
          {:size  20
