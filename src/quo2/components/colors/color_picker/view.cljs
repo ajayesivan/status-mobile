@@ -44,26 +44,30 @@
                      :secondary-color "#FFFFFF"
                      :secondary-color-dark "#09101C"}])
 
-(defn color-item
-  [{:keys [name color color-dark secondary-color secondary-color-dark selected? on-change]}]
+(defn- on-change-handler [selected color-name on-change]
+  (reset! selected color-name)
+  (when on-change (on-change color-name)))
+
+(defn- color-item
+  [{:keys [name color color-dark secondary-color secondary-color-dark selected? on-press blur?]}]
   [rn/touchable-opacity
-   {:style (style/color-button (colors/theme-colors color color-dark) selected?)
-    :on-press #(on-change name)}
-   [rn/view {:style (style/color-circle (colors/theme-colors color color-dark))}
+   {:style (style/color-button (colors/theme-colors color color-dark (when blur? color-dark)) selected?)
+    :on-press #(on-press name)}
+   [rn/view {:style (style/color-circle (colors/theme-colors color color-dark (when blur? color-dark)))}
     (when (and :secondary-color (not selected?))
       [rn/view
        {:style (style/secondary-overlay
-                (colors/theme-colors secondary-color secondary-color-dark))}])
+                (colors/theme-colors secondary-color secondary-color-dark (when blur? secondary-color-dark)))}])
     (when selected?
       [icon/icon :i/check
        {:size 20
-        :color (or (colors/theme-colors secondary-color secondary-color-dark)
+        :color (or (colors/theme-colors secondary-color secondary-color-dark (when blur? secondary-color-dark))
                    colors/white)}])]])
 
-(defn flex-break []
+(defn- flex-break []
   [rn/view {:style style/flex-break}])
 
-(defn view [{:keys [default-selected-color]}]
+(defn view [{:keys [default-selected-color on-change blur?]}]
   (let [internal-selected (reagent/atom default-selected-color)]
     (fn []
       [rn/view {:style style/color-picker-container}
@@ -71,6 +75,7 @@
                              [:<> {:key (get color :name)}
                               [color-item (merge color
                                                  {:selected? (= (get color :name) @internal-selected)
-                                                  :on-change #(reset! internal-selected %)})]
+                                                  :on-press #(on-change-handler internal-selected % on-change)
+                                                  :blur? blur?})]
                               (when (= index 5) [flex-break])])
                            picker-colors))])))
