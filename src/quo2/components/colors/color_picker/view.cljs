@@ -67,6 +67,7 @@
                                              (when blur? secondary-color-dark))]
     [rn/touchable-opacity
      {:style    (style/color-button theme-color selected?)
+      :test-ID (str "quo2-color-picker-" name)
       :on-press #(on-press name)}
      [rn/view {:style (style/color-circle theme-color blur?)}
       (when (and :secondary-color (not selected?))
@@ -84,13 +85,13 @@
 
 (defn view
   "Options
-   - `default-color` Default selected color name
+   - `default-selected` Default selected color name
      (for valid color names check `quo2.components.colors.color-picker.picker-colors`).
    - `selected` Selected color name.
    - `on-change` Callback called when a color is selected `(fn [color-name])`.
    - `blur?` Boolean to enable blur background support.}"
-  [{:keys [default-color]}]
-  (let [internal-selected (reagent/atom default-color)]
+  [{:keys [default-selected]}]
+  (let [internal-selected (reagent/atom default-selected)]
     (fn [{:keys [blur? on-change selected]}]
       (when (and (not (nil? selected)) (not= @internal-selected selected))
         (reset! internal-selected selected))
