@@ -51,25 +51,32 @@
   (when on-change (on-change color-name)))
 
 (defn- color-item
-  [{:keys [name color color-dark secondary-color secondary-color-dark selected? on-press blur?]}]
-  [rn/touchable-opacity
-   {:style    (style/color-button (colors/theme-colors color color-dark (when blur? color-dark))
-                                  selected?)
-    :on-press #(on-press name)}
-   [rn/view {:style (style/color-circle (colors/theme-colors color color-dark (when blur? color-dark)))}
-    (when (and :secondary-color (not selected?))
-      [rn/view
-       {:style (style/secondary-overlay
-                (colors/theme-colors secondary-color
-                                     secondary-color-dark
-                                     (when blur? secondary-color-dark)))}])
-    (when selected?
-      [icon/icon :i/check
-       {:size  20
-        :color (or (colors/theme-colors secondary-color
-                                        secondary-color-dark
-                                        (when blur? secondary-color-dark))
-                   colors/white)}])]])
+  [{:keys [name
+           color
+           color-dark
+           secondary-color
+           secondary-color-dark
+           selected?
+           on-press
+           blur?]}]
+  (let [theme-color     (colors/theme-colors color
+                                             color-dark
+                                             (when blur? color-dark))
+        theme-secondary (colors/theme-colors secondary-color
+                                             secondary-color-dark
+                                             (when blur? secondary-color-dark))]
+    [rn/touchable-opacity
+     {:style    (style/color-button theme-color selected?)
+      :on-press #(on-press name)}
+     [rn/view {:style (style/color-circle theme-color)}
+      (when (and :secondary-color (not selected?))
+        [rn/view
+         {:style (style/secondary-overlay theme-secondary)}])
+      (when selected?
+        [icon/icon :i/check
+         {:size  20
+          :color (or theme-secondary
+                     colors/white)}])]]))
 
 (defn- flex-break
   []
@@ -77,7 +84,8 @@
 
 (defn view
   "Options
-   - `default-selected-color` Default selected color name(for valid color names check `quo2.components.colors.color-picker.picker-colors`).
+   - `default-selected-color` Default selected color name
+     (for valid color names check `quo2.components.colors.color-picker.picker-colors`).
    - `on-change` Callback called when a color is selected `(fn [color-name])`.
    - `blur?` Boolean to enable blur background support.}"
   [{:keys [default-selected-color on-change blur?]}]
