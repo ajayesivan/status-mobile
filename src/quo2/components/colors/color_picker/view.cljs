@@ -96,10 +96,10 @@
         (reset! internal-selected selected))
       [rn/view {:style style/color-picker-container}
        (doall (map-indexed (fn [index color]
-                             [:<> {:key (get color :name)}
+                             [:<> {:key (color :name)}
                               [color-item
                                (merge color
-                                      {:selected? (= (get color :name) @internal-selected)
+                                      {:selected? (= (color :name) @internal-selected)
                                        :on-press  #(on-change-handler internal-selected % on-change)
                                        :blur?     blur?})]
                               (when (= index 5) [flex-break])])
