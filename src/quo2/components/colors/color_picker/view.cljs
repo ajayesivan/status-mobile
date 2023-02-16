@@ -67,7 +67,12 @@
 (defn- flex-break []
   [rn/view {:style style/flex-break}])
 
-(defn view [{:keys [default-selected-color on-change blur?]}]
+(defn view 
+  "Options
+   - `default-selected-color` Default selected color name(for valid color names check `quo2.components.colors.color-picker.picker-colors`).
+   - `on-change` Callback called when a color is selected `(fn [color-name])`.
+   - `blur?` Boolean to enable blur background support.}"
+  [{:keys [default-selected-color on-change blur?]}] 
   (let [internal-selected (reagent/atom default-selected-color)]
     (fn []
       [rn/view {:style style/color-picker-container}
