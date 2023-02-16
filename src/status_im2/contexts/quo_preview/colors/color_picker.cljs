@@ -3,7 +3,8 @@
             [quo2.foundations.colors :as colors]
             [quo2.core :as quo]))
 
-(defn preview []
+(defn preview
+  []
   (fn []
     [rn/touchable-without-feedback {:on-press rn/dismiss-keyboard!}
      [rn/view {:padding-bottom 150}
@@ -11,12 +12,15 @@
       [rn/view {:padding-vertical 60}
        [quo/color-picker]]]]))
 
-(defn preview-color-picker []
-  [rn/view  {:background-color (colors/theme-colors
-                                colors/white
-                                colors/neutral-95)
-             :flex             1}
-   [rn/flat-list {:flex                      1
-                  :keyboardShouldPersistTaps :always
-                  :header                    [preview]
-                  :key-fn                    str}]])
+(defn preview-color-picker
+  []
+  [rn/view
+   {:background-color (colors/theme-colors
+                       colors/white
+                       colors/neutral-95)
+    :flex             1}
+   [rn/flat-list
+    {:flex                      1
+     :keyboardShouldPersistTaps :always
+     :header                    [preview]
+     :key-fn                    str}]])
