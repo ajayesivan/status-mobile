@@ -8,36 +8,36 @@
 (def picker-colors [{:name "blue"
                      :color "#2A4AF5"
                      :color-dark "#223BC4"}
-                    {:name "purple"
-                     :color "#7140FD"
-                     :color-dark "#5A33CA"}
-                    {:name "army"
-                     :color "#216266"
-                     :color-dark "#1A4E52"}
-                    {:name "turquoise"
-                     :color "#2A799B"
-                     :color-dark "#22617C"}
-                    {:name "sky"
-                     :color "#1992D7"
-                     :color-dark "#1475AC"}
-                    {:name "magenta"
-                     :color "#EC266C"
-                     :color-dark "#BD1E56"}
                     {:name "yellow"
                      :color "#F6B03C"
                      :color-dark "#C58D30"}
-                    {:name "flamingo"
-                     :color "#F66F8F"
-                     :color-dark "#C55972"}
+                    {:name "turquoise"
+                     :color "#2A799B"
+                     :color-dark "#22617C"}
                     {:name "copper"
                      :color "#CB6256"
                      :color-dark "#A24E45"}
+                    {:name "sky"
+                     :color "#1992D7"
+                     :color-dark "#1475AC"}
                     {:name "camel"
                      :color "#C78F67"
                      :color-dark "#9F7252"}
                     {:name "orange"
                      :color "#FF7D46"
                      :color-dark "#CC6438"}
+                    {:name "army"
+                     :color "#216266"
+                     :color-dark "#1A4E52"}
+                    {:name "flamingo"
+                     :color "#F66F8F"
+                     :color-dark "#C55972"}
+                    {:name "purple"
+                     :color "#7140FD"
+                     :color-dark "#5A33CA"}
+                    {:name "magenta"
+                     :color "#EC266C"
+                     :color-dark "#BD1E56"}
                     {:name "fengshui"
                      :color "#09101C"
                      :color-dark "#FFFFFF"
