@@ -84,13 +84,16 @@
 
 (defn view
   "Options
-   - `default-selected-color` Default selected color name
+   - `default-color` Default selected color name
      (for valid color names check `quo2.components.colors.color-picker.picker-colors`).
+   - `selected` Selected color name.
    - `on-change` Callback called when a color is selected `(fn [color-name])`.
    - `blur?` Boolean to enable blur background support.}"
-  [{:keys [default-selected-color on-change blur?]}]
-  (let [internal-selected (reagent/atom default-selected-color)]
-    (fn []
+  [{:keys [default-color]}]
+  (let [internal-selected (reagent/atom default-color)]
+    (fn [{:keys [blur? on-change selected]}]
+      (when (and (not (nil? selected)) (not= @internal-selected selected))
+        (reset! internal-selected selected))
       [rn/view {:style style/color-picker-container}
        (doall (map-indexed (fn [index color]
                              [:<> {:key (get color :name)}

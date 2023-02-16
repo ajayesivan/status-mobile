@@ -108,6 +108,7 @@
 
 ;;;; COLORS
 (def color-picker quo2.components.colors.color-picker.view/view)
+(def picker-colors quo2.components.colors.color-picker.view/picker-colors)
 
 ;;;; COMMUNITY
 (def community-card-view-item quo2.components.community.community-card-view/community-card-view-item)
