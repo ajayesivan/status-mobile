@@ -30,6 +30,7 @@
     [status-im2.contexts.quo-preview.dividers.divider-label :as divider-label]
     [status-im2.contexts.quo-preview.dividers.new-messages :as new-messages]
     [status-im2.contexts.quo-preview.drawers.action-drawers :as action-drawers]
+    [status-im2.contexts.quo-preview.drawers.documenation-drawer :as documenation-drawer]
     [status-im2.contexts.quo-preview.drawers.drawer-buttons :as drawer-buttons]
     [status-im2.contexts.quo-preview.drawers.permission-drawers :as permission-drawers]
     [status-im2.contexts.quo-preview.dropdowns.dropdown :as dropdown]
@@ -146,6 +147,9 @@
    :drawers               [{:name      :action-drawers
                             :insets    {:top false}
                             :component action-drawers/preview-action-drawers}
+                           {:name      :documentation-drawer
+                            :insets    {:top false}
+                            :component documenation-drawer/preview-documenation-drawer}
                            {:name      :drawer-buttons
                             :insets    {:top false}
                             :component drawer-buttons/preview-drawer-buttons}

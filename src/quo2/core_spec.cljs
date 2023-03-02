@@ -4,6 +4,7 @@
             [quo2.components.counter.--tests--.counter-component-spec]
             [quo2.components.dividers.--tests--.divider-label-component-spec]
             [quo2.components.drawers.action-drawers.component-spec]
+            [quo2.components.drawers.documentation-drawer.component-spec]
             [quo2.components.drawers.drawer-buttons.component-spec]
             [quo2.components.drawers.permission-context.component-spec]
             [quo2.components.colors.color-picker.component-spec]
